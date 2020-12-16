@@ -7,19 +7,23 @@
 #define MAX 80
 #define BROJ 50;
 
+struct osoba
+{
+	int id_zaposlenog;
+	char* ime, * prezime;
+	char poruka[MAX + 1];
+	char* tel, * adresa_stanovanja;
+};
+
 void sifrovanje();
 void desifrovanje();
+
 
 void cezar(std::fstream f, int odstup);
 void vizner(std::fstream f, int odstup, char * sifra);
 void hill(std::fstream f, int broj);
 
-struct osoba
-{
-	int id;
-	char* ime, *prezime, poruka[MAX + 1];
-	char* tel;
-};
+void stampa(osoba o);
 
 int main()
 {
@@ -56,6 +60,10 @@ void desifrovanje()
 
 }
 
+void stampa(osoba o)
+{
+
+}
 
 /*
 * Cezaova šifra je vrsta šifrovanja prostog teksta. Tekst se šifruje tako što se svako slovo teksta menja
