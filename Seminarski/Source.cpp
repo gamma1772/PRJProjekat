@@ -1,14 +1,29 @@
 ﻿//Marko Dujović, NRT-85/19
 
+/*O programu:
+ * Program predstavlja jedan koncept kako bi izgledao upis i zaštita podatake neke firme. Podaci se prvobitno upisuju u strukture koje se kasnije prepisuju u fajl, i na
+ * kraju se šifruju pomoću jedne od tri metode: Cezarovo šifrovanje, Vižnerovo šifrovanje i Hilova enkripcija. Prva dva tipa šifrovanja su jednostavni, tako da se 
+ * ne preporučuju za šifrovanje nekih važnih podataka, zato što mogu veoma lako da se dešifruju uz pomoć frekventne analize teksta.
+ * 
+ * @param u komentarima koda nema veliku ulogu, skraćeno je od parametar i služi samo za dokumentaciju funkcija. Visual Studio ne koristi ovu anotaciju, ali neka druga
+ * razvojna okruženja, kao što su 'Eclipse IDE For C++' ili 'IntelliJ CLion' koriste ovu anotaciju.
+ */
+
 #include<iostream>
 #include<fstream>
 #include<string>
+#include<stdio.h>
 
 #define MAX 80
 #define BROJ 50;
 
 using namespace std;
 
+/*
+ * Struktura osoba: sadrži podatke za zaposlenog.
+ *		@param idZaposlenog - Identifikacioni broj zaposlenog. U slučaju ovog programa, ovaj parametar se automatski inkrementira za 1.
+ *		@param poruka - Poruka ili napomena za nekog zaposlenog, može da sadrži do 80 karaktera.
+ */
 struct osoba
 {
 	int idZaposlenog;
@@ -17,25 +32,29 @@ struct osoba
 	char* tel, * adresaStanovanja;
 };
 
-void sifrovanje();
-void desifrovanje();
+void proveraFajla(char *imeFajla);
 
+void sifrovanje();
+void desifrovanje(char *f);
 
 void cezar(fstream f, int odstup);
 void vizner(fstream f, int odstup, char * sifra);
 void hill(fstream f, int broj);
 
-void upis(osoba o, fstream f);
+void upis(osoba *o, char *imeF, int n);
 void stampa(osoba o);
 
 int main()
 {
-	char c, imeBaze[MAX + 1];
+	char c, imeFajla[MAX + 1];
 	int i, n;
 	osoba* baza;
 
-	cout << "Unesite ime baze: ";
-	cin >> imeBaze;
+	//Imenovanje i kreiranje baze
+	cout << "Unesite ime fajla: ";
+	cin >> imeFajla;
+
+	proveraFajla(imeFajla);
 
 	//Upit za korisnika da unese broj osoba
 	do
@@ -50,13 +69,11 @@ int main()
 	while (n < 0 || n > 50);
 
 	//Pocetak unosenja podataka
-	for (i = 0; i < n; i++)
-	{
-
-	}
+	upis(baza, imeFajla, n);
 
 	cout << "Unos podataka je uspesno zavrsen. Da li zelite da sifrujete unete podatke (D/N): ";
 	cin >> c;
+	toupper(c);
 
 	switch (c)
 	{
@@ -70,16 +87,50 @@ int main()
 	return 0;
 }
 
+void proveraFajla(char *imeFajla)
+{
+	fstream f;
+	char c;
+	f.open(imeFajla, ios::in | ios::out);
+	if (f.is_open())
+	{
+		do
+		{
+			cout << "\n\nUPOZORENJE: Fajl vec postoji! Da li zelite da desifrujete (D) i izmenite sadrzaj, ili da obrisete (O) fajl?\nUnos: ";
+			cin >> c; toupper(c);
+		} while (c != 'D' || c != 'O');
+		switch (c)
+		{
+		case 'D':
+			desifrovanje(imeFajla);
+		case 'O':
+			remove(imeFajla);
+		default:
+			break;
+		}
+	}
+	else
+	{
+		f.clear();
+	}
+}
+
 void sifrovanje()
 {
 }
 
-void desifrovanje()
+void desifrovanje(char *f)
 {
 
 }
 
-void upis(osoba o, fstream f)
+/*Upis podataka.
+ *		@param osoba *o - Struktura tipa osoba, u nju se prvo unose podaci;
+ *		@param char *imeF - Ime fajla u koji će se unositi podaci
+ *		@param int n - broj struktura koji je korisnik naveo
+ */
+
+void upis(osoba *o, char *imeF, int n)
 {
 
 }
