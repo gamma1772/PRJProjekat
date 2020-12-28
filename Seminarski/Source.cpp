@@ -4,9 +4,6 @@
  * Program predstavlja jedan koncept kako bi izgledao upis i zaštita podatake neke firme. Podaci se prvobitno upisuju u strukture koje se kasnije prepisuju u fajl, i na
  * kraju se šifruju pomoću jedne od tri metode: Cezarovo šifrovanje, Vižnerovo šifrovanje i Hilovo sifrovanje. Prva dva tipa šifrovanja su jednostavni, tako da se 
  * ne preporučuju za šifrovanje nekih važnih podataka, zato što mogu veoma lako da se dešifruju uz pomoć frekventne analize teksta.
- * 
- * @param u komentarima koda nema veliku ulogu, skraćeno je od parametar i služi samo za dokumentaciju funkcija. Visual Studio ne koristi ovu anotaciju, ali neka druga
- * razvojna okruženja, kao što su 'Eclipse IDE For C++' ili 'IntelliJ CLion' koriste ovu anotaciju.
  */
 
 #include<iostream>
@@ -14,19 +11,16 @@
 #include<string>
 #include<stdio.h>
 
-#define MAX 80
+#define MAX 100
 #define BROJ 50;
 
 using namespace std;
 
-/*
- * Struktura osoba: sadrži podatke za zaposlenog.
- *		@param idZaposlenog - Identifikacioni broj zaposlenog. U slučaju ovog programa, ovaj parametar se automatski inkrementira za 1.
- *		@param poruka - Poruka ili napomena za nekog zaposlenog, može da sadrži do 80 karaktera.
- */
+
+//Struktura osoba sadrži podatke za zaposlenog.
 struct osoba
 {
-	int idZaposlenog;
+	int idZaposlenog; //idZaposlenog se automatski inkrementira za 1.
 	char* ime, * prezime;
 	char poruka[MAX + 1];
 	char* tel, * adresaStanovanja;
@@ -34,15 +28,15 @@ struct osoba
 
 void proveraFajla(char *imeFajla);
 
-void sifrovanje();
+void sifrovanje(char *imeF);
 void desifrovanje(char *f);
 
 void cezar(char *imeF, int odstup);
 void vizner(fstream f, int odstup, char * sifra);
-void hill(fstream f, int broj, char *sifra);
+void hill(char *imeF, char *sifra);
 
 void unosPodataka(osoba *o, char *imeF, int n);
-void info();
+void info(char *imeF);
 
 int main()
 {
@@ -77,12 +71,12 @@ int main()
 	cout << "Unos podataka je uspesno zavrsen. Da li zelite da sifrujete unete podatke (D/N): ";
 	cin >> c; toupper(c);
 
-	delete baza;
+	delete [] baza;
 
 	switch (c)
 	{
 	case 'D':
-		sifrovanje();
+		sifrovanje(imeFajla);
 	case 'N':
 		exit(0);
 	default:
@@ -121,45 +115,57 @@ void proveraFajla(char *imeFajla)
 	}
 }
 
-void sifrovanje()
+/*
+ * Upit za korisnika na koji način želi da šifruje podatke, ili da izbaci informacije o dostupnim vrstana šifrovanja.
+ * 
+ * char *imeF - Ime datoteke koje se prosleđuje drugim funkcijama koje pozivaju ovu funkciju.
+ */
+void sifrovanje(char *imeF)
 {
 	int broj;
+	int odstup;
 
 	cout << "Na koji nacin zelite da sifrujete fajl?\n\n1. Cezarovo sifrovanje\n2. Viznerovo sifrovanje\n3. Hilovo sifrovanje\n\nUnesite redni broj, ili '?' ako zelite da vidite primere sifrovanja: ";
 	cin >> broj;
 	switch (broj)
 	{
 	case 1:
+		cout << "Unesite koliko karaktera ce biti odstup u tekstu: "; cin >> odstup;
+		cezar(imeF, odstup);
 	case 2:
 	case 3:
 	case '?':
-		info();
+		info(imeF);
 	default:
 		break;
 	}
 }
-
 void desifrovanje(char *f)
 {
 
 }
 
-/*Upis podataka.
- *		@param osoba *o - Struktura tipa osoba, u nju se prvo unose podaci;
- *		@param char *imeF - Ime fajla u koji će se unositi podaci
- *		@param int n - broj struktura koji je korisnik naveo
+/*
+ * Upis podataka u datoteku.
+ * 
+ * osoba o - Struktura tipa osoba, u nju se prvo unose podaci.
+ * char *imeF - Ime fajla.
+ * int n - broj struktura koji je korisnik naveo.
  */
-
 void unosPodataka(osoba *o, char *imeF, int n)
 {
 
 }
 
-//Izbacuje primere šifrovanja u konzolu i vraća program u sifrovanje().
-void info()
+/*
+ * Izbacuje primere šifrovanja u konzolu i vraća program u sifrovanje().
+ * 
+ * imeF - Ime fajla. Služi samo za vraćanje u funkciju sifrovanje()
+ */
+void info( char *imeF)
 {
 	cout << "Cezarovo sifrovanje"
-		 << "\nSvako slovo teksta koji se sifruje vraca za n karaktera unazad. Primer:"
+		 << "\nSvako slovo teksta koji se sifruje vraca se za n karaktera unazad. Primer:"
 		 << "\n\n'The quick brown fox jumps over the lazy dog', sa pomerajem od 3 bice:"
 		 <<   "\n'Wkh txlfn eurzq ira mxpsv ryhu wkh odcb grj'";
 
@@ -179,13 +185,17 @@ void info()
 		<< "\n\n|15|   |P|"
 		<<   "\n|14| = |O|"
 		<<   "\n| 7|   |H|";
-	sifrovanje();
+	sifrovanje(imeF);
 }
 
+
 /*
-* Cezaova šifra je vrsta šifrovanja prostog teksta. Tekst se šifruje tako što se svako slovo teksta menja
-* odgovarajućim znakom koji je pomeren za odgovarajući broj mesta u levo.
-*/
+ * Cezaova šifra je vrsta šifrovanja prostog teksta. Tekst se šifruje tako što se svako 
+ * slovo teksta menja odgovarajućim znakom koji je pomeren za odgovarajući broj mesta u levo.
+ * 
+ * imeF - Ime datoteke u kojoj se nalaze podaci
+ * odstup - Broj karaktera za koji se vrši odstupanje unazad u tekstu.
+ */
 void cezar(char *imeF, int odstup)
 {
 	int i;
@@ -208,9 +218,11 @@ void cezar(char *imeF, int odstup)
 	for (i = 0; i < duzina; i++)
 	{
 		//Sifrovanje velikih slova:
+		//Formula E(x) = (x + n) mod 26. 65 i 97 se dodaju zato što se koristi ASCII format, a mod 26 znači da je formula ograničena na 26 karaktera.
+		//Dešifrovanje se vrši na sličan način: D(x) = (x - n) mod 26.
 		if (isupper(tekst[i]))
 		{
-			temp += char(int(tekst[i] + odstup - 65) % 26 + 65);
+			temp += char(int(tekst[i] + odstup - 65) % 26 + 65); 
 		}
 		
 		//Sifrovanje malih slova
@@ -230,22 +242,27 @@ void cezar(char *imeF, int odstup)
 
 	f.close();
 
-	delete tekst;
-	delete temp;
+	delete [] tekst;
+	delete [] temp;
 }
 
 /*
-* Vižnerova šifra je modifikacija Cezarove šifre.
-*/
+ * Vižnerova šifra je modifikacija Cezarove šifre.
+ */
 void vizner(fstream f, int odstup, char* sifra)
 {
 
 }
+
 /*
-* Hilovo šifrovanje je zasnovano na linearnoj algebri. Svako slovo se promeni u svoj redni broj
-* i ubaci se u n*n matricu, i pomnoži se sa željenim brojem. Rezultujuća matrica je šifrovan podatak.
-*/
-void hill(fstream f, int broj, char* sifra)
+ * Hilovo šifrovanje je zasnovano na matricama. Slova teksta i šifre se pretvaraju u svoje redne brojeve (od 0 do 25 za alfabet), 
+ * šifra se ubacuje u n* n matricu, dok se tekst ubacuje u vektorsku matricu(n * 1), gde je n broj clanova vektorske matrice. 
+ * Te dve matrice se pomnože i dobije se rezultujuća matrica koja je šifrovan tekst kada se članovi ove matrice pretvore u tekst.
+ *
+ * imeF - Funkcija dobija ime fajla u kom se nalaze podaci. Ti podaci se šifruju i upisuju u novi fajl.
+ * sifra - šifra za šifrovanje podataka.
+ */
+void hill(char *imeF, char* sifra)
 {
 
 }
