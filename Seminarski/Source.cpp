@@ -10,6 +10,7 @@
 #include<fstream>
 #include<string>
 #include<stdio.h>
+#include<ctype.h>
 
 #define MAX 100
 #define BROJ 50;
@@ -23,8 +24,11 @@ struct osoba
 	int idZaposlenog; //idZaposlenog se automatski inkrementira za 1.
 	char* ime, * prezime;
 	char poruka[MAX + 1];
-	char* tel, * adresaStanovanja;
+	char *adresaStanovanja;
+	char* tel;
 };
+
+void info(char* imeF);
 
 void proveraFajla(char *imeFajla);
 
@@ -32,11 +36,11 @@ void sifrovanje(char *imeF);
 void desifrovanje(char *f);
 
 void cezar(char *imeF, int odstup);
-void vizner(fstream f, int odstup, char * sifra);
+void vizner(char *imeF, int odstup, char * sifra);
 void hill(char *imeF, char *sifra);
 
 void unosPodataka(osoba *o, char *imeF, int n);
-void info(char *imeF);
+
 
 int main()
 {
@@ -69,15 +73,16 @@ int main()
 	unosPodataka(baza, imeFajla, n);
 
 	cout << "Unos podataka je uspesno zavrsen. Da li zelite da sifrujete unete podatke (D/N): ";
-	cin >> c; toupper(c);
+	cin >> c;
 
 	delete [] baza;
 
-	switch (c)
+	switch (toupper(c))
 	{
 	case 'D':
 		sifrovanje(imeFajla);
 	case 'N':
+		cout << "Izlaz iz programa..." << endl;
 		exit(0);
 	default:
 		break;
@@ -116,11 +121,23 @@ void proveraFajla(char *imeFajla)
 }
 
 /*
- * Upit za korisnika na koji način želi da šifruje podatke, ili da izbaci informacije o dostupnim vrstana šifrovanja.
+ * Upis podataka u datoteku.
  * 
+ * osoba o - Struktura tipa osoba, u nju se prvo unose podaci.
+ * char *imeF - Ime fajla.
+ * int n - broj struktura koji je korisnik naveo.
+ */
+void unosPodataka(osoba *o, char *imeF, int n)
+{
+
+}
+
+/*
+ * Upit za korisnika na koji način želi da šifruje podatke, ili da izbaci informacije o dostupnim vrstana šifrovanja.
+ *
  * char *imeF - Ime datoteke koje se prosleđuje drugim funkcijama koje pozivaju ovu funkciju.
  */
-void sifrovanje(char *imeF)
+void sifrovanje(char* imeF)
 {
 	int broj;
 	int odstup;
@@ -139,22 +156,6 @@ void sifrovanje(char *imeF)
 	default:
 		break;
 	}
-}
-void desifrovanje(char *f)
-{
-
-}
-
-/*
- * Upis podataka u datoteku.
- * 
- * osoba o - Struktura tipa osoba, u nju se prvo unose podaci.
- * char *imeF - Ime fajla.
- * int n - broj struktura koji je korisnik naveo.
- */
-void unosPodataka(osoba *o, char *imeF, int n)
-{
-
 }
 
 /*
@@ -199,14 +200,16 @@ void info( char *imeF)
 void cezar(char *imeF, int odstup)
 {
 	int i;
+	char identifikator = 'A';
 	int duzina;
 	char *tekst, *temp;
 	fstream f;
-	f.open(imeF, ios::in | ios::out | ios::trunc);
-
-	//Trazenje duzine ukupnog teksta i dodela memorije
+	
+	//Otvaranje fajla u rezimu citanja, trazenje duzine ukupnog teksta i dodela memorije
+	f.open(imeF, ios::in);
 	f.seekg(0, ios::end);
 	duzina = f.tellg();
+
 	tekst = new char[duzina];
 	temp = new char[duzina];
 
@@ -231,14 +234,19 @@ void cezar(char *imeF, int odstup)
 			temp += char(int(tekst[i] + odstup - 97) % 26 + 97);
 		}
 
-		//preskakanje sifrovanja znakova
+		//preskakanje sifrovanja znakova koji nisu slova
 		else { temp += tekst[i]; }
 	}
+
+	f.close();
+
+	//Upis u fajl
+	f.open(imeF, ios::out | ios::trunc);
 
 	f.seekg(0, ios::beg);
 	f.write(temp, duzina);
 
-	//Upis u fajl
+	
 
 	f.close();
 
@@ -249,9 +257,65 @@ void cezar(char *imeF, int odstup)
 /*
  * Vižnerova šifra je modifikacija Cezarove šifre.
  */
-void vizner(fstream f, int odstup, char* sifra)
+void vizner(char *imeF, int odstup, char* sifra)
 {
+	char identifikator = 'B';
+	char tempchar;
+	int i, j = 0, duzina;
+	char* tekst, * temp, *kljuc;
+	fstream f;
 
+	f.open(imeF, ios::in);
+	f.seekg(0, ios::end);
+	duzina = f.tellg();
+
+	tekst = new char[duzina];
+	temp = new char[duzina];
+	kljuc = new char[duzina];
+
+	f.seekg(0, ios::beg);
+	f.read(tekst, duzina);
+
+	//Generisanje kljuca uz pomoc sifre
+	for (i = 0; i < sizeof(kljuc) - 1; i++)
+	{
+		kljuc[i] = sifra[j];
+		if (j == strlen(sifra) - 1)
+		{
+			j = -1;
+		}
+		j++;
+	}
+
+	for (i = 0; i < duzina; i++)
+	{
+		if (isupper(tekst[i]))
+		{
+			if (islower(kljuc[i]))
+			{
+				kljuc[i] = toupper(kljuc[i]);
+			}
+			temp += char(int(tekst[i] + kljuc[i] - 65) % 26 + 65);
+		}
+		else if (islower(tekst[i]))
+		{
+			if (isupper(kljuc[i]))
+			{
+				kljuc[i] = tolower(kljuc[i]);
+			}
+			temp += char(int(tekst[i] + kljuc[i] - 97) % 26 + 97);
+		}
+		else if (isalnum(kljuc[i]))
+		{
+			temp += int(tekst[i] + kljuc[i] - 48) % 10 + 48;
+		}
+		else
+		{
+			temp += tekst[i];
+		}
+	}
+
+	f.open(imeF, ios::in);
 }
 
 /*
@@ -264,5 +328,17 @@ void vizner(fstream f, int odstup, char* sifra)
  */
 void hill(char *imeF, char* sifra)
 {
+	char identifikator = 'C';
+}
 
+void desifrovanje(char* imeF)
+{
+	fstream f;
+	char id;
+
+
+	//Otvara fajl u rezimu za citanje i cita poslednji karakter u fajlu da bi odredio vrstu sifrovanja.
+	f.open(imeF, ios::in);
+	f.seekg(0, ios::end);
+	f.get(id);
 }
