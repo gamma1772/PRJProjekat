@@ -1,4 +1,4 @@
-﻿//Marko Dujović, NRT-85/19
+﻿ //Marko Dujović, NRT-85/19
 
 #include<iostream>
 #include<fstream>
@@ -397,7 +397,7 @@ void vizner(char *imeF, char* sifra)
 
 /*
  * Hilovo šifrovanje je zasnovano na matricama. Slova teksta i šifre se pretvaraju u svoje redne brojeve (od 0 do 25 za alfabet), 
- * šifra se ubacuje u n* n matricu, dok se tekst ubacuje u vektorsku matricu(n * 1), gde je n broj clanova vektorske matrice. 
+ * šifra se ubacuje u n * n matricu, dok se tekst ubacuje u vektorsku matricu(n * 1), gde je n broj clanova vektorske matrice. 
  * Te dve matrice se pomnože i dobije se rezultujuća matrica koja je šifrovan tekst kada se članovi ove matrice pretvore u tekst.
  *
  * imeF - Funkcija dobija ime fajla u kom se nalaze podaci. Ti podaci se šifruju i upisuju u novi fajl.
